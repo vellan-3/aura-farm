@@ -178,8 +178,8 @@ export default function Browse() {
                 <div className="chart-bar-wrap"><div className="chart-bar" style={{height: '90%', opacity: 1}}></div><div className="chart-bar-label">Feb 6</div></div>
               </div>
               <div className="chart-legend">
-                <div className="chart-legend-item"><div className="chart-legend-dot" style={{background: 'var(--accent)'}}></div>FarmDirect avg</div>
-                <div className="chart-legend-item"><div className="chart-legend-dot" style={{background: 'var(--hairline)'}}></div>National market index</div>
+                <div className="chart-legend-item"><div className="chart-legend-dot" style={{background: 'var(--accent)'}}></div>Aura Farm avg</div>
+                <div className="chart-legend-item"><div className="chart-legend-dot" style={{background: 'var(--hairline-strong)'}}></div>National market index</div>
               </div>
             </div>
 
@@ -307,7 +307,7 @@ export default function Browse() {
                 <div className="notif-item">
                   <div className="notif-dot read"></div>
                   <div className="notif-body">
-                    <div className="notif-text"><strong>KYC approved:</strong> Lawal Onion Farm is now a verified seller on FarmDirect.</div>
+                    <div className="notif-text"><strong>KYC approved:</strong> Lawal Onion Farm is now a verified seller on Aura Farm.</div>
                     <div className="notif-time">2 days ago</div>
                   </div>
                 </div>

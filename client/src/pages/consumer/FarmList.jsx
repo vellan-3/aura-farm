@@ -28,7 +28,7 @@ export default function FarmList() {
       <div className="page-header">
         <div className="page-eyebrow">Consumer view — directory</div>
         <h1 className="page-title">Verified Farms</h1>
-        <p className="page-sub">Browse top-rated producers in the FarmDirect network</p>
+        <p className="page-sub">Browse top-rated producers in the Aura Farm network</p>
       </div>
 
       <div className="section gap-top">
