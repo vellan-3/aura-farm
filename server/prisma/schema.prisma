@@ -1,0 +1,219 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+}
+
+model User {
+  id          String   @id @default(uuid())
+  phone       String   @unique
+  email       String?  @unique
+  passwordHash String
+  role        Role     @default(CONSUMER)
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  farmer      Farmer?
+  consumer    Consumer?
+}
+
+enum Role {
+  FARMER
+  CONSUMER
+  ADMIN
+}
+
+model Farmer {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id])
+  farmName    String
+  farmAddress String
+  latitude    Float?
+  longitude   Float?
+  kycStatus   KycStatus @default(PENDING)
+  kycDocUrl   String?
+  bio         String?
+  createdAt   DateTime @default(now())
+
+  products    Product[]
+  orders      Order[]
+  deliveryZones DeliveryZone[]
+}
+
+model Consumer {
+  id        String  @id @default(uuid())
+  userId    String  @unique
+  user      User    @relation(fields: [userId], references: [id])
+  address   String?
+  latitude  Float?
+  longitude Float?
+  
+  orders    Order[]
+}
+
+enum KycStatus {
+  PENDING
+  SUBMITTED
+  VERIFIED
+  REJECTED
+}
+
+model Product {
+  id              String    @id @default(uuid())
+  farmerId        String
+  farmer          Farmer    @relation(fields: [farmerId], references: [id])
+  name            String
+  description     String?
+  category        Category
+  unit            Unit
+  pricePerUnit    Float
+  bulkPricing     Json?
+  stockQty        Float
+  minOrderQty     Float     @default(1)
+  harvestDate     DateTime?
+  nextHarvestDate DateTime?
+  isAvailable     Boolean   @default(true)
+  isColdChain     Boolean   @default(false)
+  photos          String[]
+  qualityGrade    Grade     @default(STANDARD)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  orderItems      OrderItem[]
+  deliveryZones   DeliveryZone[]
+  priceHistory    PriceHistory[]
+}
+
+enum Category {
+  VEGETABLES
+  FRUITS
+  GRAINS
+  TUBERS
+  LIVESTOCK
+  DAIRY
+  POULTRY
+  SEAFOOD
+  HERBS
+  OTHER
+}
+
+enum Unit {
+  KG
+  GRAM
+  CRATE
+  BAG
+  BUNCH
+  BASKET
+  LITRE
+  PIECE
+  MUDU
+  PAINT
+}
+
+enum Grade {
+  PREMIUM
+  STANDARD
+  BUDGET
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  consumerId      String
+  consumer        Consumer    @relation(fields: [consumerId], references: [id])
+  farmerId        String
+  farmer          Farmer      @relation(fields: [farmerId], references: [id])
+  status          OrderStatus @default(PENDING)
+  fulfillmentType FulfillType
+  totalAmount     Float
+  deliveryCost    Float       @default(0)
+  escrowReference String?     
+  escrowStatus    EscrowStatus @default(HELD)
+  deliveryAddress String?
+  deliveryLat     Float?
+  deliveryLng     Float?
+  notes           String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  items           OrderItem[]
+  statusHistory   OrderStatusHistory[]
+  receipt         Receipt?
+}
+
+model OrderItem {
+  id         String  @id @default(uuid())
+  orderId    String
+  order      Order   @relation(fields: [orderId], references: [id])
+  productId  String
+  product    Product @relation(fields: [productId], references: [id])
+  quantity   Float
+  unitPrice  Float
+  unit       Unit
+  subtotal   Float
+}
+
+model OrderStatusHistory {
+  id        String      @id @default(uuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id])
+  status    OrderStatus
+  note      String?
+  createdAt DateTime    @default(now())
+}
+
+model Receipt {
+  id          String   @id @default(uuid())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  receiptNo   String   @unique
+  issuedAt    DateTime @default(now())
+  pdfUrl      String?
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PACKED
+  DISPATCHED
+  DELIVERED
+  CANCELLED
+  DISPUTED
+}
+
+enum FulfillType {
+  DELIVERY
+  PICKUP
+}
+
+enum EscrowStatus {
+  HELD
+  RELEASED
+  REFUNDED
+}
+
+model DeliveryZone {
+  id           String   @id @default(uuid())
+  farmerId     String
+  farmer       Farmer   @relation(fields: [farmerId], references: [id])
+  name         String
+  maxRadiusKm  Float
+  baseFee      Float
+  feePerKm     Float
+  minOrderVal  Float    @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  
+  products     Product[]
+}
+
+model PriceHistory {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  oldPrice  Float
+  newPrice  Float
+  createdAt DateTime @default(now())
+}

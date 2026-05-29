@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FarmDirect — Buy fresh from Nigerian farms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #111111;
+    --on-primary: #ffffff;
+    --ink: #111111;
+    --ink-muted: #626260;
+    --ink-subtle: #7b7b78;
+    --canvas: #f5f1ec;
+    --surface-1: #ffffff;
+    --surface-2: #ebe7e1;
+    --inverse-canvas: #000000;
+    --inverse-ink: #ffffff;
+    --hairline: #d3cec6;
+    --hairline-soft: #ebe7e1;
+    --accent: #1a7a4a;
+    --accent-light: #e8f5ee;
+    --accent-muted: #2d9e60;
+    --warning: #cc6600;
+    --warning-light: #fff3e0;
+    --error: #c41c1c;
+    --error-light: #fdeaea;
+    --report-blue: #65b5ff;
+    --report-green: #0bdf50;
+    --report-pink: #ff2067;
+    --report-lime: #b3e01c;
+    --sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { font-family: var(--sans); font-size: 16px; line-height: 1.5; color: var(--ink); background: var(--canvas); -webkit-font-smoothing: antialiased; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: var(--sans); cursor: pointer; border: none; }
+  input, textarea, select { font-family: var(--sans); }
+
+  /* ── NAV ─────────────────────────────────────────────── */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--canvas);
+    border-bottom: 1px solid var(--hairline-soft);
+    height: 56px; padding: 0 32px;
+    display: grid; grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+  }
+  .nav-left { display: flex; align-items: center; gap: 8px; justify-self: start; }
+  .nav-logo { font-size: 17px; font-weight: 600; letter-spacing: -0.4px; color: var(--ink); }
+  .nav-logo span { color: var(--accent); }
+  .nav-badge { font-family: var(--mono); font-size: 10px; background: var(--accent-light); color: var(--accent); border-radius: 4px; padding: 2px 6px; }
+  .nav-links { list-style: none; display: flex; gap: 24px; font-size: 14px; font-weight: 500; justify-self: center; }
+  .nav-links a { color: var(--ink-muted); transition: color 0.15s; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-links a.active { color: var(--ink); }
+  .nav-right { display: flex; align-items: center; gap: 8px; justify-self: end; }
+  .btn { border-radius: 8px; padding: 10px 18px; font-size: 15px; font-weight: 500; line-height: 1.2; height: 40px; display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.15s, background 0.15s; }
+  .btn-primary { background: var(--ink); color: var(--on-primary); }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-secondary { background: var(--surface-1); color: var(--ink); border: 1px solid var(--hairline); }
+  .btn-secondary:hover { background: var(--surface-2); }
+  .btn-accent { background: var(--accent); color: #fff; }
+  .btn-accent:hover { opacity: 0.88; }
+  .btn-sm { height: 34px; padding: 6px 14px; font-size: 13px; }
+  .btn-ghost { background: transparent; color: var(--ink-muted); }
+  .btn-ghost:hover { color: var(--ink); }
+
+  /* ── LAYOUT SHELL ────────────────────────────────────── */
+  .app-shell { display: grid; grid-template-columns: 240px 1fr; min-height: calc(100vh - 56px); }
+
+  /* ── SIDEBAR ─────────────────────────────────────────── */
+  .sidebar {
+    background: var(--surface-1);
+    border-right: 1px solid var(--hairline-soft);
+    padding: 24px 0;
+    position: sticky; top: 56px; height: calc(100vh - 56px);
+    overflow-y: auto;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-section { padding: 0 16px 24px; }
+  .sidebar-label { font-family: var(--mono); font-size: 10px; color: var(--ink-subtle); letter-spacing: 0.06em; text-transform: uppercase; padding: 0 8px; margin-bottom: 6px; }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 10px; border-radius: 8px;
+    font-size: 14px; font-weight: 500; color: var(--ink-muted);
+    cursor: pointer; transition: background 0.12s, color 0.12s;
+    margin-bottom: 2px;
+  }
+  .sidebar-item:hover { background: var(--canvas); color: var(--ink); }
+  .sidebar-item.active { background: var(--canvas); color: var(--ink); }
+  .sidebar-item .icon { width: 18px; height: 18px; opacity: 0.6; flex-shrink: 0; }
+  .sidebar-item.active .icon { opacity: 1; }
+  .sidebar-item .badge { margin-left: auto; font-family: var(--mono); font-size: 10px; background: var(--accent-light); color: var(--accent); border-radius: 10px; padding: 1px 7px; }
+  .sidebar-item .badge-warn { margin-left: auto; font-family: var(--mono); font-size: 10px; background: #fde8c8; color: var(--warning); border-radius: 10px; padding: 1px 7px; }
+  .sidebar-divider { height: 1px; background: var(--hairline-soft); margin: 0 16px 24px; }
+
+  /* ── MAIN CONTENT ────────────────────────────────────── */
+  .main { background: var(--canvas); overflow-y: auto; }
+
+  /* ── PAGE HEADER ─────────────────────────────────────── */
+  .page-header { padding: 32px 32px 24px; border-bottom: 1px solid var(--hairline-soft); }
+  .page-eyebrow { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-bottom: 6px; }
+  .page-title { font-size: 28px; font-weight: 500; letter-spacing: -0.5px; color: var(--ink); margin-bottom: 6px; }
+  .page-sub { font-size: 15px; color: var(--ink-muted); }
+
+  /* ── STAT CARDS ──────────────────────────────────────── */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px 32px; }
+  .stat-card { background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 12px; padding: 20px; }
+  .stat-label { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); margin-bottom: 8px; }
+  .stat-value { font-size: 28px; font-weight: 500; letter-spacing: -0.8px; color: var(--ink); margin-bottom: 4px; }
+  .stat-delta { font-size: 13px; color: var(--accent); }
+  .stat-delta.down { color: var(--error); }
+
+  /* ── SECTION ─────────────────────────────────────────── */
+  .section { padding: 0 32px 32px; }
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-top: 24px; }
+  .section-title { font-size: 17px; font-weight: 500; letter-spacing: -0.2px; }
+
+  /* ── PRODUCT GRID ────────────────────────────────────── */
+  .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 16px; }
+  .product-card {
+    background: var(--surface-1); border: 1px solid var(--hairline);
+    border-radius: 12px; overflow: hidden;
+    transition: box-shadow 0.15s, border-color 0.15s;
+    cursor: pointer;
+  }
+  .product-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); border-color: #c0bbb4; }
+  .product-img {
+    height: 160px; background: var(--canvas);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .product-img-placeholder { font-size: 48px; }
+  .product-badges { position: absolute; top: 10px; left: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .badge { display: inline-flex; align-items: center; font-family: var(--mono); font-size: 10px; font-weight: 500; padding: 3px 8px; border-radius: 6px; }
+  .badge-grade-premium { background: #111; color: #fff; }
+  .badge-grade-standard { background: var(--surface-2); color: var(--ink-muted); }
+  .badge-grade-budget { background: var(--canvas); color: var(--ink-subtle); border: 1px solid var(--hairline); }
+  .badge-below { background: #e6f4ee; color: var(--accent); }
+  .badge-above { background: var(--warning-light); color: var(--warning); }
+  .badge-at { background: var(--surface-2); color: var(--ink-muted); }
+  .badge-scarce { background: #fdeaea; color: var(--error); }
+  .badge-season { background: var(--accent-light); color: var(--accent); }
+  .product-body { padding: 16px; }
+  .product-farm { font-family: var(--mono); font-size: 10px; color: var(--ink-subtle); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+  .verified-dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; display: inline-block; }
+  .product-name { font-size: 15px; font-weight: 500; letter-spacing: -0.2px; margin-bottom: 8px; }
+  .product-price-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 12px; }
+  .product-price { font-size: 20px; font-weight: 500; letter-spacing: -0.5px; }
+  .product-unit { font-size: 13px; color: var(--ink-muted); }
+  .product-stock { font-family: var(--mono); font-size: 11px; color: var(--ink-subtle); margin-bottom: 12px; }
+  .product-stock.low { color: var(--warning); }
+  .product-card-footer { display: flex; gap: 8px; }
+
+  /* ── SEARCH + FILTER BAR ─────────────────────────────── */
+  .browse-bar { display: flex; align-items: center; gap: 12px; padding: 20px 32px; border-bottom: 1px solid var(--hairline-soft); flex-wrap: wrap; }
+  .search-wrap { position: relative; flex: 1; min-width: 240px; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--ink-subtle); pointer-events: none; }
+  .search-input { width: 100%; background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 8px; padding: 9px 14px 9px 36px; font-size: 15px; color: var(--ink); }
+  .search-input::placeholder { color: var(--ink-subtle); }
+  .search-input:focus { outline: none; border-color: var(--ink); }
+  .filter-tab-group { display: flex; gap: 4px; background: var(--canvas); border-radius: 999px; padding: 4px; border: 1px solid var(--hairline); }
+  .filter-tab { padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--ink-muted); background: transparent; border: none; cursor: pointer; transition: background 0.12s, color 0.12s; white-space: nowrap; }
+  .filter-tab.active { background: var(--surface-1); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .sort-select { background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 8px; padding: 9px 14px; font-size: 14px; color: var(--ink); }
+
+  /* ── ORDER TABLE ─────────────────────────────────────── */
+  .table-wrap { background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  thead th { font-family: var(--mono); font-size: 11px; font-weight: 400; color: var(--ink-muted); text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--hairline-soft); background: var(--canvas); }
+  tbody td { padding: 14px 16px; border-bottom: 1px solid var(--hairline-soft); color: var(--ink); vertical-align: middle; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: #faf9f7; }
+  .status-pill { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 999px; font-weight: 500; }
+  .status-pending { background: #fff8e1; color: #b07800; }
+  .status-confirmed { background: var(--accent-light); color: var(--accent); }
+  .status-packed { background: #e3f2fd; color: #1565c0; }
+  .status-dispatched { background: #f3e5f5; color: #6a1b9a; }
+  .status-delivered { background: #e8f5e9; color: #1b5e20; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  .order-id { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); }
+  .amount { font-weight: 500; }
+
+  /* ── FARM PROFILE CARD ───────────────────────────────── */
+  .farm-card { background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 12px; padding: 24px; }
+  .farm-avatar { width: 48px; height: 48px; border-radius: 12px; background: var(--accent-light); display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 12px; }
+  .farm-name { font-size: 17px; font-weight: 500; letter-spacing: -0.2px; margin-bottom: 4px; }
+  .farm-location { font-family: var(--mono); font-size: 12px; color: var(--ink-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 4px; }
+  .farm-meta-row { display: flex; gap: 16px; margin-bottom: 16px; }
+  .farm-meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .farm-meta-label { font-family: var(--mono); font-size: 10px; color: var(--ink-subtle); }
+  .farm-meta-value { font-size: 14px; font-weight: 500; }
+  .farm-bio { font-size: 14px; color: var(--ink-muted); line-height: 1.5; margin-bottom: 16px; border-top: 1px solid var(--hairline-soft); padding-top: 16px; }
+  .kyc-badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 11px; background: var(--accent-light); color: var(--accent); border-radius: 6px; padding: 4px 10px; }
+
+  /* ── PRICE CHART PLACEHOLDER ─────────────────────────── */
+  .chart-card { background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 12px; padding: 24px; }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .chart-title { font-size: 15px; font-weight: 500; }
+  .chart-tabs { display: flex; gap: 4px; }
+  .chart-tab { font-family: var(--mono); font-size: 11px; padding: 4px 10px; border-radius: 6px; background: transparent; color: var(--ink-muted); border: 1px solid transparent; cursor: pointer; }
+  .chart-tab.active { background: var(--canvas); color: var(--ink); border-color: var(--hairline); }
+  .chart-area { height: 160px; background: var(--canvas); border-radius: 8px; display: flex; align-items: flex-end; padding: 16px 12px 0; gap: 6px; overflow: hidden; }
+  .chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .chart-bar { width: 100%; background: var(--accent); border-radius: 3px 3px 0 0; opacity: 0.75; transition: opacity 0.15s; }
+  .chart-bar:hover { opacity: 1; }
+  .chart-bar-label { font-family: var(--mono); font-size: 9px; color: var(--ink-subtle); }
+  .chart-legend { display: flex; gap: 16px; margin-top: 12px; }
+  .chart-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-muted); }
+  .chart-legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  /* ── FORM ────────────────────────────────────────────── */
+  .form-card { background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 12px; padding: 24px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-field { display: flex; flex-direction: column; gap: 6px; }
+  .form-field.full { grid-column: span 2; }
+  .form-label { font-family: var(--mono); font-size: 11px; color: var(--ink-muted); }
+  .form-input { background: var(--canvas); color: var(--ink); border: 1px solid var(--hairline); border-radius: 8px; padding: 10px 14px; font-size: 15px; transition: border-color 0.12s; }
+  .form-input:focus { outline: none; border-color: var(--ink); background: var(--surface-1); }
+  .form-input::placeholder { color: var(--ink-subtle); }
+  .form-hint { font-size: 12px; color: var(--ink-subtle); }
+  .input-prefix { display: flex; align-items: center; background: var(--canvas); border: 1px solid var(--hairline); border-radius: 8px; overflow: hidden; }
+  .input-prefix span { padding: 10px 12px; font-family: var(--mono); font-size: 13px; color: var(--ink-muted); border-right: 1px solid var(--hairline); background: var(--surface-2); }
+  .input-prefix input { border: none; background: transparent; padding: 10px 14px; font-size: 15px; font-family: var(--sans); color: var(--ink); flex: 1; }
+  .input-prefix input:focus { outline: none; }
+  textarea.form-input { resize: vertical; min-height: 90px; }
+  select.form-input { appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23626260' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+  .form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 8px; }
+
+  /* ── NOTIFICATION ITEM ───────────────────────────────── */
+  .notif-list { background: var(--surface-1); border: 1px solid var(--hairline); border-radius: 12px; overflow: hidden; }
+  .notif-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px; border-bottom: 1px solid var(--hairline-soft); transition: background 0.1s; cursor: pointer; }
+  .notif-item:last-child { border-bottom: none; }
+  .notif-item:hover { background: #faf9f7; }
+  .notif-item.unread { background: #f7f5f0; }
+  .notif-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); margin-top: 5px; flex-shrink: 0; }
+  .notif-dot.read { background: transparent; border: 1px solid var(--hairline); }
+  .notif-body { flex: 1; }
+  .notif-text { font-size: 14px; line-height: 1.45; margin-bottom: 4px; }
+  .notif-text strong { font-weight: 500; }
+  .notif-time { font-family: var(--mono); font-size: 11px; color: var(--ink-subtle); }
+
+  /* ── TABS (page-level) ───────────────────────────────── */
+  .page-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--hairline-soft); padding: 0 32px; background: var(--canvas); }
+  .page-tab { padding: 12px 16px; font-size: 14px; font-weight: 500; color: var(--ink-muted); border-bottom: 2px solid transparent; margin-bottom: -1px; cursor: pointer; transition: color 0.12s; }
+  .page-tab.active { color: var(--ink); border-bottom-color: var(--ink); }
+  .page-tab:hover { color: var(--ink); }
+
+  /* ── SCARCITY BANNER ─────────────────────────────────── */
+  .scarcity-banner { background: var(--warning-light); border: 1px solid #f5d9a8; border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 16px; }
+  .scarcity-icon { font-size: 16px; flex-shrink: 0; }
+
+  /* ── INLINE PRICE COMPARE ────────────────────────────── */
+  .price-compare { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-muted); }
+  .price-compare strong { color: var(--accent); font-weight: 500; }
+
+  /* ── DELIVERY ZONE TAG ───────────────────────────────── */
+  .zone-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .zone-tag { font-family: var(--mono); font-size: 11px; background: var(--canvas); border: 1px solid var(--hairline); border-radius: 6px; padding: 4px 10px; color: var(--ink-muted); display: flex; align-items: center; gap: 6px; }
+  .zone-cost { font-weight: 500; color: var(--ink); }
+
+  /* ── TWO-COL LAYOUT ──────────────────────────────────── */
+  .two-col { display: grid; grid-template-columns: 1fr 320px; gap: 16px; padding: 0 32px 32px; }
+  .two-col-main { display: flex; flex-direction: column; gap: 16px; }
+  .two-col-aside { display: flex; flex-direction: column; gap: 16px; padding-top: 24px; }
+
+  /* ── FOOTER ──────────────────────────────────────────── */
+  .footer { padding: 32px; border-top: 1px solid var(--hairline-soft); display: flex; align-items: center; justify-content: space-between; font-size: 13px; color: var(--ink-muted); }
+  .footer-brand { font-weight: 500; color: var(--ink); }
+
+  /* ── UTILITY ─────────────────────────────────────────── */
+  .gap-top { padding-top: 24px; }
+  .text-muted { color: var(--ink-muted); }
+  .text-mono { font-family: var(--mono); font-size: 12px; }
+
+  /* ── RESPONSIVE ──────────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .app-shell { grid-template-columns: 200px 1fr; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .two-col { grid-template-columns: 1fr; }
+    .two-col-aside { padding-top: 0; }
+  }
+  @media (max-width: 768px) {
+    .nav { padding: 0 20px; grid-template-columns: 1fr auto; }
+    .nav-links { display: none; }
+    .app-shell { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .stats-row { grid-template-columns: 1fr 1fr; padding: 16px 20px; }
+    .section { padding: 0 20px 24px; }
+    .page-header { padding: 24px 20px; }
+    .browse-bar { padding: 16px 20px; }
+    .page-tabs { padding: 0 20px; }
+    .product-grid { grid-template-columns: 1fr 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-field.full { grid-column: span 1; }
+    .two-col { padding: 0 20px 24px; }
+  }
+  @media (max-width: 480px) {
+    .stats-row { grid-template-columns: 1fr; }
+    .product-grid { grid-template-columns: 1fr; }
+    .page-title { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ NAV ══════════ -->
+<nav class="nav">
+  <div class="nav-left">
+    <div class="nav-logo">Farm<span>Direct</span></div>
+    <span class="nav-badge">beta</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#browse" class="active">Browse</a></li>
+    <li><a href="#orders">My orders</a></li>
+    <li><a href="#farms">Farms</a></li>
+    <li><a href="#prices">Price tracker</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn btn-secondary btn-sm">Log in</button>
+    <button class="btn btn-accent btn-sm">Sign up</button>
+  </div>
+</nav>
+
+<!-- ══════════ APP SHELL ══════════ -->
+<div class="app-shell">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Consumer</div>
+      <div class="sidebar-item active">
+        <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg>
+        Browse products
+      </div>
+      <div class="sidebar-item">
+        <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 5m12-5l2 5"/><circle cx="9" cy="18.5" r="1"/><circle cx="17" cy="18.5" r="1"/></svg>
+        My cart
+        <span class="badge">3</span>
+      </div>
+      <div class="sidebar-item">
+        <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h12a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zm0 8h12a1 1 0 011 1v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3a1 1 0 011-1z"/></svg>
+        My orders
+        <span class="badge-warn">1 active</span>
+      </div>
+      <div class="sidebar-item">
+        <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 10a7 7 0 1014 0A7 7 0 003 10zm7-4v4l3 3"/></svg>
+        Subscriptions
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Discover</div>
+      <div class="sidebar-item">
+        <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2l1.5 5H17l-4.5 3.3 1.5 5L10 12.3 6 15.3l1.5-5L3 7h5.5z"/></svg>
+        Top farms
+      </div>
+      <div class="sidebar-item">
+        <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 10h16M10 2v16M5.5 4.5l9 11M14.5 4.5l-9 11"/></svg>
+        Price tracker
+      </div>
+      <div class="sidebar-item">
+        <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M10 2C5.6 2 2 5.6 2 10s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 4v4l2.5 2.5"/></svg>
+        Seasonal alerts
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Farmer</div>
+      <div class="sidebar-item">
+        <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="8" width="14" height="10" rx="1.5"/><path d="M6 8V6a4 4 0 018 0v2"/></svg>
+        Farmer dashboard
+      </div>
+      <div class="sidebar-item">
+        <svg class="icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 4v12M8 8v8M4 12v4M16 6v10"/></svg>
+        My listings
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+      <div class="page-eyebrow">Consumer view — browse</div>
+      <h1 class="page-title">Fresh from Nigerian farms</h1>
+      <p class="page-sub">Verified farmers · Direct pricing · Escrow-protected payments</p>
+    </div>
+
+    <!-- STATS ROW -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Active listings</div>
+        <div class="stat-value">284</div>
+        <div class="stat-delta">↑ 12 new today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Verified farms</div>
+        <div class="stat-value">47</div>
+        <div class="stat-delta">↑ 3 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg tomato price</div>
+        <div class="stat-value">₦420</div>
+        <div class="stat-delta down">↓ ₦30 from last week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Orders placed today</div>
+        <div class="stat-value">61</div>
+        <div class="stat-delta">↑ 8% vs yesterday</div>
+      </div>
+    </div>
+
+    <!-- BROWSE BAR -->
+    <div class="browse-bar">
+      <div class="search-wrap">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="9" r="6"/><path d="M15 15l3 3"/></svg>
+        <input class="search-input" type="text" placeholder="Search tomatoes, yam, cassava…">
+      </div>
+      <div class="filter-tab-group">
+        <button class="filter-tab active">All</button>
+        <button class="filter-tab">Vegetables</button>
+        <button class="filter-tab">Fruits</button>
+        <button class="filter-tab">Grains</button>
+        <button class="filter-tab">Tubers</button>
+      </div>
+      <select class="sort-select form-input">
+        <option>Sort: Newest</option>
+        <option>Price: Low to high</option>
+        <option>Price: High to low</option>
+        <option>Best rated</option>
+        <option>Near me</option>
+      </select>
+    </div>
+
+    <!-- PAGE TABS -->
+    <div class="page-tabs">
+      <div class="page-tab active">Products</div>
+      <div class="page-tab">Farms</div>
+      <div class="page-tab">Price charts</div>
+      <div class="page-tab">Scarcity alerts</div>
+    </div>
+
+    <!-- SCARCITY BANNER -->
+    <div class="section">
+      <div style="padding-top: 20px;">
+        <div class="scarcity-banner">
+          <span class="scarcity-icon">⚠️</span>
+          <div>
+            <strong>Seasonal scarcity alert:</strong> Tomatoes are approaching off-season (Apr–Jun). Prices may rise 25–40% over the next 6 weeks.
+            <a href="#" style="color: var(--warning); font-weight: 500; margin-left: 6px;">View price forecast →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCT GRID -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">284 products available</div>
+        <button class="btn btn-ghost btn-sm">Filter ↓</button>
+      </div>
+      <div class="product-grid">
+
+        <!-- Card 1 -->
+        <div class="product-card">
+          <div class="product-img" style="background: #f0f7f0;">
+            <div class="product-img-placeholder">🍅</div>
+            <div class="product-badges">
+              <span class="badge badge-grade-premium">Premium</span>
+              <span class="badge badge-below">Below avg</span>
+            </div>
+          </div>
+          <div class="product-body">
+            <div class="product-farm"><span class="verified-dot"></span> Adeyemi Farms · Lagos</div>
+            <div class="product-name">Roma Tomatoes</div>
+            <div class="product-price-row">
+              <span class="product-price">₦380</span>
+              <span class="product-unit">/ kg</span>
+            </div>
+            <div class="product-stock low">⚠ 42 kg remaining · Harvest: 15 Feb</div>
+            <div class="product-card-footer">
+              <button class="btn btn-accent btn-sm" style="flex:1">Add to cart</button>
+              <button class="btn btn-secondary btn-sm">View</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="product-card">
+          <div class="product-img" style="background: #fffbf0;">
+            <div class="product-img-placeholder">🌽</div>
+            <div class="product-badges">
+              <span class="badge badge-grade-standard">Standard</span>
+              <span class="badge badge-at">At avg</span>
+            </div>
+          </div>
+          <div class="product-body">
+            <div class="product-farm"><span class="verified-dot"></span> Musa Grain Co · Kano</div>
+            <div class="product-name">White Maize</div>
+            <div class="product-price-row">
+              <span class="product-price">₦650</span>
+              <span class="product-unit">/ bag (50kg)</span>
+            </div>
+            <div class="product-stock">In stock · 200 bags</div>
+            <div class="product-card-footer">
+              <button class="btn btn-accent btn-sm" style="flex:1">Add to cart</button>
+              <button class="btn btn-secondary btn-sm">View</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="product-card">
+          <div class="product-img" style="background: #fdf5e0;">
+            <div class="product-img-placeholder">🍠</div>
+            <div class="product-badges">
+              <span class="badge badge-grade-premium">Premium</span>
+              <span class="badge badge-above">Above avg</span>
+            </div>
+          </div>
+          <div class="product-body">
+            <div class="product-farm"><span class="verified-dot"></span> Nwachukwu Roots · Enugu</div>
+            <div class="product-name">Pounded Yam Tubers</div>
+            <div class="product-price-row">
+              <span class="product-price">₦1,200</span>
+              <span class="product-unit">/ crate</span>
+            </div>
+            <div class="product-stock">In stock · 85 crates</div>
+            <div class="product-card-footer">
+              <button class="btn btn-accent btn-sm" style="flex:1">Add to cart</button>
+              <button class="btn btn-secondary btn-sm">View</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="product-card">
+          <div class="product-img" style="background: #fff0f0;">
+            <div class="product-img-placeholder">🌶️</div>
+            <div class="product-badges">
+              <span class="badge badge-grade-standard">Standard</span>
+              <span class="badge badge-scarce">Low stock</span>
+            </div>
+          </div>
+          <div class="product-body">
+            <div class="product-farm"><span class="verified-dot"></span> Ojo Pepper Farm · Oyo</div>
+            <div class="product-name">Tatashe (Red Bell Pepper)</div>
+            <div class="product-price-row">
+              <span class="product-price">₦290</span>
+              <span class="product-unit">/ kg</span>
+            </div>
+            <div class="product-stock low">⚠ 8 kg remaining · Pre-order available</div>
+            <div class="product-card-footer">
+              <button class="btn btn-primary btn-sm" style="flex:1">Pre-order</button>
+              <button class="btn btn-secondary btn-sm">View</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="product-card">
+          <div class="product-img" style="background: #f5f0f8;">
+            <div class="product-img-placeholder">🧅</div>
+            <div class="product-badges">
+              <span class="badge badge-grade-budget">Budget</span>
+              <span class="badge badge-below">Below avg</span>
+            </div>
+          </div>
+          <div class="product-body">
+            <div class="product-farm">Lawal Onion Farm · Kebbi</div>
+            <div class="product-name">Red Onions</div>
+            <div class="product-price-row">
+              <span class="product-price">₦170</span>
+              <span class="product-unit">/ kg</span>
+            </div>
+            <div class="product-stock">In stock · 500 kg</div>
+            <div class="product-card-footer">
+              <button class="btn btn-accent btn-sm" style="flex:1">Add to cart</button>
+              <button class="btn btn-secondary btn-sm">View</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="product-card">
+          <div class="product-img" style="background: #f0f5f0;">
+            <div class="product-img-placeholder">🫛</div>
+            <div class="product-badges">
+              <span class="badge badge-grade-premium">Premium</span>
+              <span class="badge badge-season">In season</span>
+            </div>
+          </div>
+          <div class="product-body">
+            <div class="product-farm"><span class="verified-dot"></span> Emeka Veggies · Anambra</div>
+            <div class="product-name">Ugwu (Fluted Pumpkin)</div>
+            <div class="product-price-row">
+              <span class="product-price">₦120</span>
+              <span class="product-unit">/ bunch</span>
+            </div>
+            <div class="product-stock">In stock · 320 bunches</div>
+            <div class="product-card-footer">
+              <button class="btn btn-accent btn-sm" style="flex:1">Add to cart</button>
+              <button class="btn btn-secondary btn-sm">View</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PRICE CHART + FARM ASIDE -->
+    <div class="two-col">
+      <div class="two-col-main">
+
+        <!-- Price History Chart -->
+        <div class="chart-card">
+          <div class="chart-header">
+            <div>
+              <div class="chart-title">Tomato price history — Lagos region</div>
+              <div class="price-compare" style="margin-top: 4px;">
+                Market avg this week: <strong>₦420/kg</strong>
+                <span style="color: var(--ink-muted)">· Lowest: ₦310 · Highest: ₦580</span>
+              </div>
+            </div>
+            <div class="chart-tabs">
+              <button class="chart-tab active">30d</button>
+              <button class="chart-tab">90d</button>
+              <button class="chart-tab">1yr</button>
+            </div>
+          </div>
+          <div class="chart-area">
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:55%"></div><div class="chart-bar-label">Jan 1</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:60%"></div><div class="chart-bar-label">Jan 5</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:52%"></div><div class="chart-bar-label">Jan 9</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:70%"></div><div class="chart-bar-label">Jan 13</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:65%"></div><div class="chart-bar-label">Jan 17</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:80%"></div><div class="chart-bar-label">Jan 21</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:75%"></div><div class="chart-bar-label">Jan 25</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:68%"></div><div class="chart-bar-label">Jan 29</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:72%"></div><div class="chart-bar-label">Feb 2</div></div>
+            <div class="chart-bar-wrap"><div class="chart-bar" style="height:90%; opacity:1;"></div><div class="chart-bar-label">Feb 6</div></div>
+          </div>
+          <div class="chart-legend">
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--accent)"></div>FarmDirect avg</div>
+            <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--hairline)"></div>National market index</div>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div>
+          <div class="section-header" style="padding-top:8px;">
+            <div class="section-title">My recent orders</div>
+            <button class="btn btn-ghost btn-sm">View all →</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Farm</th>
+                  <th>Items</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="order-id">#ORD-0041</span></td>
+                  <td>Adeyemi Farms</td>
+                  <td>Roma Tomatoes · 5kg</td>
+                  <td class="amount">₦1,900</td>
+                  <td><span class="status-pill status-dispatched"><span class="status-dot"></span>Dispatched</span></td>
+                  <td><button class="btn btn-accent btn-sm">Confirm delivery</button></td>
+                </tr>
+                <tr>
+                  <td><span class="order-id">#ORD-0038</span></td>
+                  <td>Musa Grain Co</td>
+                  <td>White Maize · 2 bags</td>
+                  <td class="amount">₦1,300</td>
+                  <td><span class="status-pill status-delivered"><span class="status-dot"></span>Delivered</span></td>
+                  <td><button class="btn btn-secondary btn-sm">Rate order</button></td>
+                </tr>
+                <tr>
+                  <td><span class="order-id">#ORD-0035</span></td>
+                  <td>Emeka Veggies</td>
+                  <td>Ugwu · 10 bunches</td>
+                  <td class="amount">₦1,200</td>
+                  <td><span class="status-pill status-delivered"><span class="status-dot"></span>Delivered</span></td>
+                  <td><button class="btn btn-ghost btn-sm">Receipt</button></td>
+                </tr>
+                <tr>
+                  <td><span class="order-id">#ORD-0031</span></td>
+                  <td>Nwachukwu Roots</td>
+                  <td>Yam Tubers · 3 crates</td>
+                  <td class="amount">₦3,600</td>
+                  <td><span class="status-pill status-confirmed"><span class="status-dot"></span>Confirmed</span></td>
+                  <td><button class="btn btn-ghost btn-sm">Track</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ASIDE: Farm card + Notifications -->
+      <div class="two-col-aside">
+
+        <!-- Farm Profile Card -->
+        <div class="farm-card">
+          <div class="farm-avatar">🌱</div>
+          <div class="farm-name">Adeyemi Farms</div>
+          <div class="farm-location">
+            <svg width="12" height="12" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 2a6 6 0 016 6c0 4-6 10-6 10S4 12 4 8a6 6 0 016-6z"/><circle cx="10" cy="8" r="2"/></svg>
+            Ikorodu, Lagos State
+          </div>
+          <div class="farm-meta-row">
+            <div class="farm-meta-item">
+              <span class="farm-meta-label">Rating</span>
+              <span class="farm-meta-value">4.8 ★</span>
+            </div>
+            <div class="farm-meta-item">
+              <span class="farm-meta-label">Orders</span>
+              <span class="farm-meta-value">142</span>
+            </div>
+            <div class="farm-meta-item">
+              <span class="farm-meta-label">Products</span>
+              <span class="farm-meta-value">8</span>
+            </div>
+          </div>
+          <div class="farm-bio">
+            Family-run tomato and pepper farm operating since 2011. We grow without chemical pesticides and harvest twice per season.
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap: wrap;">
+            <span class="kyc-badge">
+              <svg width="10" height="10" viewBox="0 0 20 20" fill="currentColor"><path d="M8.6 14.6L4 10l1.4-1.4 3.2 3.2 6.8-6.8L16.8 6.4z"/></svg>
+              KYC Verified
+            </span>
+            <div class="zone-tags">
+              <span class="zone-tag">Lagos <span class="zone-cost">₦500</span></span>
+              <span class="zone-tag">Ogun <span class="zone-cost">₦800</span></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div>
+          <div class="section-header" style="padding-top: 0; margin-bottom: 12px;">
+            <div class="section-title">Notifications</div>
+            <button class="btn btn-ghost btn-sm">Mark all read</button>
+          </div>
+          <div class="notif-list">
+            <div class="notif-item unread">
+              <div class="notif-dot"></div>
+              <div class="notif-body">
+                <div class="notif-text"><strong>Order #ORD-0041</strong> has been dispatched by Adeyemi Farms. Expected delivery today.</div>
+                <div class="notif-time">2 minutes ago</div>
+              </div>
+            </div>
+            <div class="notif-item unread">
+              <div class="notif-dot"></div>
+              <div class="notif-body">
+                <div class="notif-text"><strong>Price alert:</strong> Tomato prices in Lagos are 18% below the national average this week.</div>
+                <div class="notif-time">1 hour ago</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text">Your weekly subscription to <strong>Ugwu bunches</strong> from Emeka Veggies is ready to renew.</div>
+                <div class="notif-time">Yesterday, 9:14am</div>
+              </div>
+            </div>
+            <div class="notif-item">
+              <div class="notif-dot read"></div>
+              <div class="notif-body">
+                <div class="notif-text"><strong>KYC approved:</strong> Lawal Onion Farm is now a verified seller on FarmDirect.</div>
+                <div class="notif-time">2 days ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FARMER LISTING FORM (shown below for reference) -->
+    <div class="section">
+      <div class="section-header">
+        <div class="section-title">Farmer view — create product listing</div>
+        <span class="badge badge-grade-standard" style="font-size: 11px;">Farmer only</span>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">Product name</label>
+            <input class="form-input" type="text" placeholder="e.g. Roma Tomatoes">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Category</label>
+            <select class="form-input">
+              <option>Vegetables</option>
+              <option>Fruits</option>
+              <option>Grains</option>
+              <option>Tubers</option>
+              <option>Livestock</option>
+              <option>Dairy</option>
+              <option>Poultry</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Price per unit (₦)</label>
+            <div class="input-prefix">
+              <span>₦</span>
+              <input type="number" placeholder="0.00">
+            </div>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Unit type</label>
+            <select class="form-input">
+              <option>kg</option>
+              <option>crate</option>
+              <option>bag (50kg)</option>
+              <option>bunch</option>
+              <option>basket</option>
+              <option>mudu</option>
+              <option>paint</option>
+              <option>litre</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Available stock (quantity)</label>
+            <input class="form-input" type="number" placeholder="e.g. 200">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Minimum order quantity</label>
+            <input class="form-input" type="number" placeholder="e.g. 5">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Last harvest date</label>
+            <input class="form-input" type="date">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Next expected harvest</label>
+            <input class="form-input" type="date">
+          </div>
+          <div class="form-field">
+            <label class="form-label">Quality grade</label>
+            <select class="form-input">
+              <option>Premium</option>
+              <option>Standard</option>
+              <option>Budget</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label class="form-label">Cold chain available?</label>
+            <select class="form-input">
+              <option>No — ambient transport only</option>
+              <option>Yes — refrigerated delivery</option>
+            </select>
+          </div>
+          <div class="form-field full">
+            <label class="form-label">Product description</label>
+            <textarea class="form-input" placeholder="Describe your product — variety, farming method, freshness guarantee…"></textarea>
+            <span class="form-hint">Be specific about how you grow and harvest. This builds buyer trust.</span>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-secondary">Save draft</button>
+          <button class="btn btn-accent">Publish listing</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div>
+        <span class="footer-brand">FarmDirect</span>
+        <span class="text-muted"> · Connecting Nigerian farmers directly to consumers</span>
+      </div>
+      <div class="text-mono text-muted">v0.1.0 · School project build · 2025</div>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.chart-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.page-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.sidebar-item').forEach(item => {
+    item.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.notif-item.unread').forEach(item => {
+    item.addEventListener('click', () => {
+      item.classList.remove('unread');
+      item.querySelector('.notif-dot').classList.add('read');
+      item.querySelector('.notif-dot').classList.remove('notif-dot');
+    });
+  });
+</script>
+
+</body>
+</html>
