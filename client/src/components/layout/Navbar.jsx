@@ -12,10 +12,10 @@ export default function Navbar() {
 
   return (
     <nav className="nav">
-      <div className="nav-content">
+      <div className="nav-left">
         <div className="nav-logo">Aura<span>Farm</span></div>
+        <span className="nav-badge">beta</span>
       </div>
-      <span className="nav-badge">beta</span>
 
       <div className="nav-right">
         {user ? (
